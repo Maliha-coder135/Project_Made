@@ -1,0 +1,142 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <thread> // For std::this_thread::sleep_for
+#include <chrono> // For std::chrono::seconds
+
+using namespace std;
+
+class Node {
+public:
+    int data;
+    string state;
+    int traffic_density;
+    Node* left;
+    Node* right;
+
+    Node(int data, string state = "Red", int traffic_density = 0)
+        : data(data), state(state), traffic_density(traffic_density), left(nullptr), right(nullptr) {}
+};
+
+// Function to insert a node in the BST
+Node* insert_node(Node* root, int data, string state = "Red", int traffic_density = 0) {
+    if (root == nullptr) {
+        return new Node(data, state, traffic_density);
+    }
+    if (data < root->data) {
+        root->left = insert_node(root->left, data, state, traffic_density);
+    } else if (data > root->data) {
+        root->right = insert_node(root->right, data, state, traffic_density);
+    }
+    return root;
+}
+
+// In-order traversal to display the tree
+void inorder_traversal(Node* root) {
+    if (root == nullptr) return;
+    inorder_traversal(root->left);
+    cout << "Position: " << root->data << ", State: " << root->state << ", Traffic Density: " << root->traffic_density << "%" << endl;
+    inorder_traversal(root->right);
+}
+
+// Function to balance the tree using an in-order traversal and re-building approach
+Node* balance_bst(vector<Node*>& nodes, int start, int end) {
+    if (start > end) return nullptr;
+    int mid = (start + end) / 2;
+    Node* root = nodes[mid];
+    root->left = balance_bst(nodes, start, mid - 1);
+    root->right = balance_bst(nodes, mid + 1, end);
+    return root;
+}
+
+// Function to store nodes in sorted order
+void store_inorder_nodes(Node* root, vector<Node*>& nodes) {
+    if (root == nullptr) return;
+    store_inorder_nodes(root->left, nodes);
+    nodes.push_back(root);
+    store_inorder_nodes(root->right, nodes);
+}
+
+// Function to optimize traffic light states based on traffic density
+void optimize_traffic_lights(Node* root) {
+    if (root == nullptr) return;
+
+    // Change state based on traffic density: green for low density, red for high
+    if (root->traffic_density < 30) {
+        root->state = "Green";
+    } else if (root->traffic_density > 70) {
+        root->state = "Red";
+    } else {
+        root->state = "Yellow";
+    }
+
+    optimize_traffic_lights(root->left);
+    optimize_traffic_lights(root->right);
+}
+
+// Function to update traffic density dynamically for all nodes
+void update_traffic_density(Node* root) {
+    if (root == nullptr) return;
+
+    // Generate new random traffic density for the node
+    root->traffic_density = rand() % 101;
+
+    // Recursively update left and right subtrees
+    update_traffic_density(root->left);
+    update_traffic_density(root->right);
+}
+
+// Function to run the simulation with a delay between cycles
+void run_simulation(Node* root, int cycles) {
+    for (int i = 0; i < cycles; ++i) {
+        cout << "\nCycle " << (i + 1) << ":" << endl;
+
+        // Update traffic densities dynamically
+        update_traffic_density(root);
+
+        // Optimize traffic light states based on updated traffic densities
+        optimize_traffic_lights(root);
+
+        // Display the state of the traffic lights
+        inorder_traversal(root);
+
+        // Add a 5-second delay before the next cycle
+        this_thread::sleep_for(chrono::seconds(5));
+    }
+}
+
+int main() {
+    srand(static_cast<unsigned int>(time(0)));
+    Node* root = nullptr;
+
+    // Create a traffic light system (BST) with random traffic densities
+    root = insert_node(root, 50, "Red", rand() % 101);
+    root = insert_node(root, 30, "Green", rand() % 101);
+    root = insert_node(root, 20, "Yellow", rand() % 101);
+    root = insert_node(root, 40, "Red", rand() % 101);
+    root = insert_node(root, 70, "Green", rand() % 101);
+    root = insert_node(root, 60, "Yellow", rand() % 101);
+    root = insert_node(root, 80, "Red", rand() % 101);
+
+    // Display the initial traffic light system
+    cout << "Initial traffic light system:" << endl;
+    inorder_traversal(root);
+
+    // Balance the tree to ensure optimized structure for future operations
+    vector<Node*> nodes;
+    store_inorder_nodes(root, nodes);
+    root = balance_bst(nodes, 0, nodes.size() - 1);
+
+    cout << "\nBalanced traffic light system:" << endl;
+    inorder_traversal(root);
+
+    // Run the simulation for 5 cycles with a 5-second delay
+    run_simulation(root, 5);
+
+    return 0;
+}
+
+ 
+ 
