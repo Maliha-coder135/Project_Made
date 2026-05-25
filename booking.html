@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Water Tanker - WaterTrack PK</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .booking-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        .booking-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .booking-header h2 {
+            color: #333;
+            margin: 10px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn-confirm {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+        }
+        .navbar {
+            background: #007bff;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'consumer_dashboard' %}" class="navbar-brand">WaterTrack PK</a>
+    </nav>
+
+    <div style="margin-top: 80px;">
+        <div class="booking-container">
+            <div class="booking-header">
+                <h2>💧 Book Water Tanker</h2>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Select City</label>
+                    <select name="city" class="form-control" required>
+                        <option value="">Choose City</option>
+                        <option value="Karachi">Karachi</option>
+                        <option value="Rawalpindi">Rawalpindi</option>
+                        <option value="Islamabad">Islamabad</option>
+                        <option value="Lahore">Lahore</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Tanker</label>
+                    <select name="tanker_type" class="form-control" required>
+                        <option value="">Choose Tanker</option>
+                        <option value="Provider A - 1000 Gallons">Provider A - 1000 Gallons</option>
+                        <option value="Provider B - 2000 Gallons">Provider B - 2000 Gallons</option>
+                        <option value="Provider C - 3000 Gallons">Provider C - 3000 Gallons</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+    <label>Fixed Price (PKR)</label>
+    <input type="text" id="display_price" class="form-control" readonly placeholder="Select a tanker to see regulated price" style="background: #f0f0f0; cursor: not-allowed;">
+    <input type="hidden" name="price" id="hidden_price">
+</div>
+
+                <div class="form-group">
+                    <label>Delivery Address</label>
+                    <textarea name="address" class="form-control" placeholder="Enter complete delivery address" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Preferred Time</label>
+                    <input type="datetime-local" name="preferred_time" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn-confirm">
+                    ✓ Confirm Booking
+                </button>
+            </form>
+
+            <a href="{% url 'consumer_dashboard' %}" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+    <script>
+document.querySelector('select[name="tanker_type"]').addEventListener('change', function() {
+    const fixedPrices = {
+        'Provider A - 1000 Gallons': 3500,
+        'Provider B - 2000 Gallons': 6000,
+        'Provider C - 3000 Gallons': 8500
+    };
+    const selected = this.value;
+    const price = fixedPrices[selected] || 0;
+    
+    document.getElementById('display_price').value = price ? `PKR ${price} (Regulated)` : '';
+    document.getElementById('hidden_price').value = price;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+version: '3.9'
+
+# ─────────────────────────────────────────────────────────────
+#  Redis Cluster: 3 Masters + 3 Replicas
+#  PDC Project 6B — Parallel & Distributed Computing
+# ─────────────────────────────────────────────────────────────
+
+services:
+
+  # ── REDIS CLUSTER NODES ───────────────────────────────────
+  redis-node-1:
+    image: redis:7.2-alpine
+    container_name: redis-node-1
+    command: redis-server /etc/redis/redis.conf
+    ports:
+      - "7001:7001"
+      - "17001:17001"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-1-data:/data
+    environment:
+      - REDIS_PORT=7001
+    networks:
+      - redis-cluster-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7001", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-node-2:
+    image: redis:7.2-alpine
+    container_name: redis-node-2
+    command: redis-server /etc/redis/redis.conf --port 7002
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-2-data:/data
+    networks:
+      - redis-cluster-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7002", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-node-3:
+    image: redis:7.2-alpine
+    container_name: redis-node-3
+    command: redis-server /etc/redis/redis.conf --port 7003
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-3-data:/data
+    networks:
+      - redis-cluster-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7003", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-node-4:
+    image: redis:7.2-alpine
+    container_name: redis-node-4
+    command: redis-server /etc/redis/redis.conf --port 7004
+    ports:
+      - "7004:7004"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-4-data:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-5:
+    image: redis:7.2-alpine
+    container_name: redis-node-5
+    command: redis-server /etc/redis/redis.conf --port 7005
+    ports:
+      - "7005:7005"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-5-data:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-6:
+    image: redis:7.2-alpine
+    container_name: redis-node-6
+    command: redis-server /etc/redis/redis.conf --port 7006
+    ports:
+      - "7006:7006"
+    volumes:
+      - ./redis-config/redis-node.conf:/etc/redis/redis.conf
+      - redis-node-6-data:/data
+    networks:
+      - redis-cluster-net
+
+  # ── CLUSTER INITIALIZER ───────────────────────────────────
+  # Runs once to form the cluster and then exits
+  redis-cluster-init:
+    image: redis:7.2-alpine
+    container_name: redis-cluster-init
+    command: >
+      sh -c "
+        sleep 5 &&
+        redis-cli --cluster create
+          redis-node-1:7001
+          redis-node-2:7002
+          redis-node-3:7003
+          redis-node-4:7004
+          redis-node-5:7005
+          redis-node-6:7006
+          --cluster-replicas 1
+          --cluster-yes
+      "
+    networks:
+      - redis-cluster-net
+    depends_on:
+      redis-node-1:
+        condition: service_healthy
+      redis-node-2:
+        condition: service_healthy
+      redis-node-3:
+        condition: service_healthy
+
+  # ── REDIS INSIGHT (GUI) ───────────────────────────────────
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "8001:8001"
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-cluster-init
+
+  # ── CHAT SERVER (scalable — spin up multiple instances) ───
+  chat-server-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-server-1
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - USE_CLUSTER=true
+      - REDIS_NODE1_HOST=redis-node-1
+      - REDIS_NODE1_PORT=7001
+      - REDIS_NODE2_HOST=redis-node-2
+      - REDIS_NODE2_PORT=7002
+      - REDIS_NODE3_HOST=redis-node-3
+      - REDIS_NODE3_PORT=7003
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-cluster-init
+
+  chat-server-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-server-2
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - USE_CLUSTER=true
+      - REDIS_NODE1_HOST=redis-node-1
+      - REDIS_NODE1_PORT=7001
+      - REDIS_NODE2_HOST=redis-node-2
+      - REDIS_NODE2_PORT=7002
+      - REDIS_NODE3_HOST=redis-node-3
+      - REDIS_NODE3_PORT=7003
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-cluster-init
+
+  # ── NGINX LOAD BALANCER ───────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: chat-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./redis-config/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - chat-server-1
+      - chat-server-2
+
+volumes:
+  redis-node-1-data:
+  redis-node-2-data:
+  redis-node-3-data:
+  redis-node-4-data:
+  redis-node-5-data:
+  redis-node-6-data:
+
+networks:
+  redis-cluster-net:
+    driver: bridge

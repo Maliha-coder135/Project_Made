@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consumer Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .navbar { background: #007bff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { color: white; font-size: 24px; font-weight: bold; text-decoration: none; }
+        .nav-buttons a { padding: 10px 20px; margin-left: 10px; border-radius: 5px; text-decoration: none; background: white; color: #007bff; }
+        .container { padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
+        .btn-book { background: #ffc107; padding: 15px 40px; border-radius: 8px; text-decoration: none; color: #000; display: inline-block; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #007bff; color: white; }
+        .btn-action { padding: 8px 15px; border-radius: 5px; text-decoration: none; margin: 2px; display: inline-block; }
+        .btn-complaint { background: #dc3545; color: white; }
+        .status-confirmed { color: #28a745; font-weight: bold; }
+        .status-dispatched { color: #007bff; font-weight: bold; }
+        .status-delivered { color: #6c757d; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span class="navbar-brand">Consumer Dashboard</span>
+        <div class="nav-buttons">
+            <a href="{% url 'index' %}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Book New Tanker</h2>
+        <a href="{% url 'book_tanker' %}" class="btn-book">Book Tanker</a>
+
+        <h2>My Bookings</h2>
+        {% if bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>City</th>
+                    <th>Tanker</th>
+                    <th>Price (PKR)</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.booking_id }}</td>
+                    <td>{{ booking.city }}</td>
+                    <td>{{ booking.tanker_type }}</td>
+                    <td>{{ booking.price }}</td>
+                    <td>
+                        <span class="status-{{ booking.status|lower }}">{{ booking.status }}</span>
+                    </td>
+                    <td>
+                        {% if booking.status == 'Delivered' %}
+                        <a href="{% url 'file_complaint' %}" class="btn-action btn-complaint">File Complaint</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="margin-top: 20px; color: #666;">No bookings yet. Click "Book Tanker" to create one!</p>
+        {% endif %}
+    </div>
+</body>
+</html>

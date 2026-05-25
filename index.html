@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WaterTrack-PK</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .navbar { background: #007bff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-brand { color: white; font-size: 24px; font-weight: bold; text-decoration: none; }
+        .nav-buttons a { padding: 10px 20px; margin-left: 10px; border-radius: 5px; text-decoration: none; }
+        .btn-login { background: white; color: #007bff; }
+        .btn-register { background: #ffc107; color: #000; }
+        .hero { text-align: center; padding: 80px 20px; }
+        .btn-get-started { background: #ffc107; padding: 15px 40px; font-size: 18px; border-radius: 8px; text-decoration: none; color: #000; display: inline-block; }
+        .features { display: flex; justify-content: space-around; padding: 60px 20px; flex-wrap: wrap; }
+        .feature { text-align: center; max-width: 250px; margin: 20px; }
+        .feature h3 { margin: 15px 0 10px; }
+        footer { background: #212529; color: white; text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'index' %}" class="navbar-brand">WaterTrack-PK</a>
+        <div class="nav-buttons">
+            <a href="{% url 'login' %}" class="btn-login">Login</a>
+            <a href="{% url 'register' %}" class="btn-register">Register</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Urban Water Tanker Transparency System</h1>
+        <p>Ensuring fair pricing and accountable service delivery</p>
+        <br>
+        <a href="{% url 'register' %}" class="btn-get-started">Get Started</a>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <h3>Transparent Pricing</h3>
+            <p>Government regulated base pricing system</p>
+        </div>
+        <div class="feature">
+            <h3>Verified Providers</h3>
+            <p>Licensed tanker operators only</p>
+        </div>
+        <div class="feature">
+            <h3>Complaint Tracking</h3>
+            <p>Track grievance resolution status</p>
+        </div>
+        <div class="feature">
+            <h3>Secure System</h3>
+            <p>Data protected under PECA 2016</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 WaterTrack-PK | Data secured & ethically compliant</p>
+    </footer>
+</body>
+</html>

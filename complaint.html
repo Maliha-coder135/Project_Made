@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Complaint - WaterTrack PK</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .complaint-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        .complaint-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .complaint-header h2 {
+            color: #333;
+            margin: 10px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+        .navbar {
+            background: #007bff;
+            padding: 15px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{% url 'consumer_dashboard' %}" class="navbar-brand">WaterTrack PK</a>
+    </nav>
+
+    <div style="margin-top: 80px;">
+        <div class="complaint-container">
+            <div class="complaint-header">
+                <h2>⚠️ Report a Problem</h2>
+                <p>You faced any issue with your tanker delivery, please tell us below.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label>Select Your Booking</label>
+                    <select name="booking" class="form-control" required>
+                        <option value="">Choose Booking ID</option>
+                        <option value="BK1023">BK1023 - Ali Tankers (1000 Gallons)</option>
+                        <option value="BK1045">BK1045 - Safe Water Co. (2000 Gallons)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>What was the issue?</label>
+                    <select name="issue_type" class="form-control" required>
+                        <option value="">Select Issue</option>
+                        <option value="overcharging">Overcharging (Price too high)</option>
+                        <option value="late_delivery">Late Delivery</option>
+                        <option value="poor_quality">Poor Water Quality</option>
+                        <option value="driver_behavior">Driver Behavior</option>
+                        <option value="others">Others</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Explain in detail (Max 300 characters)</label>
+                    <textarea name="description" id="description" class="form-control" maxlength="300" required></textarea>
+                    <div class="char-count"><span id="charCount">0</span>/300</div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ✈ Submit Complaint
+                </button>
+            </form>
+
+            <a href="{% url 'consumer_dashboard' %}" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        // Character counter
+        document.getElementById('description').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+    </script>
+</body>
+</html>

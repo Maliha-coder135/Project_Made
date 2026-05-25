@@ -1,0 +1,26 @@
+{
+  "name": "redis-cluster-chat",
+  "version": "1.0.0",
+  "description": "Real-Time Chat with Redis Cluster — PDC Project 6B",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "start:port2": "PORT=3001 node server/server.js",
+    "start:port3": "PORT=3002 node server/server.js",
+    "start:cluster": "USE_CLUSTER=true node server/server.js",
+    "test:load": "node tests/load_test.js",
+    "test:scalability": "node tests/scalability_test.js"
+  },
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
+    "express": "^4.18.2",
+    "redis": "^4.6.13",
+    "socket.io": "^4.7.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "socket.io-client": "^4.7.5"
+  }
+}
